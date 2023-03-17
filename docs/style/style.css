@@ -1,0 +1,31 @@
+/* Styles pour la sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 200px;
+  padding: 20px;
+  background-color: #1a1c24;
+}
+
+.sidebar ul {
+  padding-left: 10px;
+  list-style-type: none;
+}
+
+.sidebar li {
+  padding-bottom: 10px;
+}
+
+/* Styles pour les liens dans la sidebar */
+.sidebar a {
+  display: block;
+  padding: 0;
+}
+
+/* Styles pour le contenu principal */
+.main {
+  margin-left: 240px;
+  padding: 0px 10px;
+}

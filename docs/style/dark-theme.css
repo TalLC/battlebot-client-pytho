@@ -1,0 +1,76 @@
+body {
+  background-color: #282a36;
+  color: #f8f8f2;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #f8f8f2;
+}
+
+p {
+  color: #f8f8f2;
+}
+
+a {
+  color: #ff79c6;
+}
+
+a:hover {
+  color: #ff79c6;
+}
+
+button, input[type="button"], input[type="reset"], input[type="submit"] {
+  background-color: #6272a4;
+  color: #f8f8f2;
+  border-color: #44475a;
+}
+
+button:hover, input[type="button"]:hover, input[type="reset"]:hover, input[type="submit"]:hover {
+  background-color: #44475a;
+}
+
+input[type="text"], input[type="email"], input[type="password"], textarea {
+  background-color: #44475a;
+  color: #f8f8f2;
+  border-color: #44475a;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus {
+  border-color: #ff79c6;
+}
+
+table {
+  border-color: #44475a;
+}
+
+th, td {
+  border-color: #44475a;
+  color: #f8f8f2;
+}
+
+th {
+  background-color: #44475a;
+}
+
+tr:nth-child(even) {
+  background-color: #44475a;
+}
+
+blockquote {
+  border-color: #44475a;
+}
+
+blockquote p {
+  color: #f8f8f2;
+}
+
+code {
+  background-color: #4a3437;
+  color: #ffa2a2;
+}
+
+pre {
+  background-color: #44475a;
+  color: #f8f8f2;
+  border-color: #44475a;
+}
