@@ -2,11 +2,13 @@
 cls
 chcp 65001 >nul
 rem ---------------------------------
-set lib-package-name=battlebotslib
+set lib-package-name=battlebotslib-python
+set doc-package-name=battlebotslib-python-doc
 
 rem Suppression de l'ancienne version
 echo - Suppression des anciennes versions
-del /Q battlebotslib.zip 2> nul
+del /Q %lib-package-name%.zip 2> nul
+del /Q %doc-package-name%.zip 2> nul
 
 rem Partie lib client
 rem -----------------
@@ -28,5 +30,36 @@ cd ..
 rem Suppression du dossier temporaire
 echo - Suppression du dossier temporaire %tmp_lib%
 rmdir /S /Q %tmp_lib% 2> nul
+
+
+rem Partie documentation
+rem --------------------
+rem Création du dossier de package temporaire
+set tmp_doc=_tmp_doc
+rmdir /S /Q %tmp_doc% 2> nul
+mkdir %tmp_doc%
+
+rem Recopie de la doc
+echo - Recopie de la documentation
+robocopy /E docs %tmp_doc% > nul
+
+rem Suppression des fichiers inutiles
+echo - Suppression des fichiers inutiles
+del /Q %tmp_doc%\*.md 2> nul
+del /Q %tmp_doc%\*.bak 2> nul
+del /Q %tmp_doc%\client\*.md 2> nul
+del /Q %tmp_doc%\client\*.bak 2> nul
+del /Q %tmp_doc%\tech\*.md 2> nul
+del /Q %tmp_doc%\tech\*.bak 2> nul
+del /Q %tmp_doc%\style\*.bak 2> nul
+
+rem Zip du package documentation
+echo - Zip du package documentation
+cd %tmp_doc%
+..\7za.exe a -tzip -r ..\%doc-package-name% * > nul
+cd ..
+
+rmdir /S /Q %tmp_doc% 2> nul
+
 
 pause
