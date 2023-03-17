@@ -1,0 +1,8 @@
+{
+  "destination_root": "BATTLEBOT/BOT/",
+  "username": "user",
+  "password": "password",
+  "host": "localhost",
+  "port": 1883,
+  "connect_timeout": 5
+}
