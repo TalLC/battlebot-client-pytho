@@ -26,3 +26,14 @@ python setup.py bdist_wheel
 ```
 pip install dist\battlebotslib-0.4.0-py3-none-any.whl
 ```
+
+# IA de test
+## Pré-requis
+Un script Python d'IA de test a été créée pour illustrer l'utilisation de la lib cliente.  
+Un fichier `requirements.txt` est fourni et il faut avoir la lib client installée pour utiliser cette IA.
+- [Code source](example)
+
+## Configuration
+- [Config du bot](example/bot1.json) (nom et id d'équipe)
+- [Informations de connexions](example/conf) (Rest, STOMP et MQTT)
+
