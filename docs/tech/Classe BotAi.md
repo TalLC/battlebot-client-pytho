@@ -103,6 +103,7 @@ La classe `BotAi` fournit une interface haut niveau pour interagir avec le serve
         }
     }
     ```
+
   - Vitesse de rotation max actuelle du bot en radians par seconde :
     ```json
     {
@@ -151,6 +152,17 @@ La classe `BotAi` fournit une interface haut niveau pour interagir avec le serve
         "source": "bot",
         "data": {
             "value": false
+        }
+    }
+    ```
+
+  - Temps de rechargement de l'arme du bot entre chaque tirs :
+    ```json
+    {
+        "msg_type": "weapon_cooldown_ms",
+        "source": "bot",
+        "data": {
+            "value": 1000
         }
     }
     ```
