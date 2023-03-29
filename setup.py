@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='battlebotslib',
     packages=find_packages(),
-    version='0.4.0',
+    version='0.5.0',
     description='Client lib to interact with the battlebots server',
     author='CGI DT AURA',
     license='',
