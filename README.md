@@ -1,6 +1,6 @@
 # Documentation
 - [Installation de la lib](docs/client/Installation%20de%20la%20lib%20Python.md)
-- [Utilisation de la classe BotAi](docs/tech/Classe%20-%20BotAi.md)
+- [Utilisation de la classe BotAi](docs/tech/Classe%20BotAi.md)
 
 # Build du package de la lib
 
