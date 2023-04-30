@@ -1,6 +1,6 @@
 from battlebotslib.utils.rest import Rest, RestException
 from battlebotslib.ConnectionManager import ConnectionManager
-
+from queue import Empty
 
 class BotAi:
 
@@ -34,7 +34,7 @@ class BotAi:
         """
         return self.connection_manager.enroll_new_bot(self._bot_name, self._team_id, bot_id)
 
-    def read_scanner(self) -> dict:
+    def read_scanner(self, block=True) -> dict:
         """
         Read and remove one item from the scanner queue.
         Example, two trees are detected:
@@ -57,9 +57,12 @@ class BotAi:
           ]
         }
         """
-        return self.connection_manager.mqtt_queue.get()
+        try:
+            return self.connection_manager.mqtt_queue.get(block=block)
+        except Empty:
+            return dict()
 
-    def read_game_message(self) -> dict:
+    def read_game_message(self, block=True) -> dict:
         """
         Read and remove one item from the game messages queue.
         Example, your bot cannot move anymore:
@@ -71,7 +74,10 @@ class BotAi:
           }
         }
         """
-        return self.connection_manager.stomp_queue.get()
+        try:
+            return self.connection_manager.stomp_queue.get(block=block)
+        except Empty:
+            return dict()
 
     def move(self, state: bool):
         """
