@@ -10,6 +10,11 @@ echo - Suppression des anciennes versions
 del /Q %lib-package-name%.zip 2> nul
 del /Q %doc-package-name%.zip 2> nul
 
+rem Build de la lib
+rem ---------------
+del /Q dist\*.whl 2> nul
+venv\Scripts\python setup.py bdist_wheel
+
 rem Partie lib client
 rem -----------------
 rem Création du dossier de package temporaire
