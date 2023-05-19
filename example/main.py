@@ -3,232 +3,184 @@ import json
 import logging
 import random
 from datetime import datetime, timedelta
-from time import sleep
+from time import time, sleep
 from pathlib import Path
-from threading import Event, Thread
+from threading import Thread, Event
+from queue import SimpleQueue, Empty
 from battlebotslib.BotAi import BotAi
-from queue import SimpleQueue
+import Events
+from Events import GameStatusMessage
+from DetectedObject import DetectedObject
+from Bot import Bot
+
 
 # Bot config
-G_BOT_ID_TMP_FILE = Path('bot_id.tmp')
-G_BOT_CONFIG = json.loads(Path('bot1.json').read_text())
+if len(sys.argv) > 1:
+    conf_file = sys.argv[1]
+else:
+    conf_file = 'bot1.json'
+G_BOT_CONFIG = json.loads(Path(conf_file).read_text())
 
-# Game information
+# Game
 G_GAME_IS_STARTED = False
 
-# Bot information
-G_BOT_HEALTH: int = 999     # Depends on the bot type, we need to read this information from the game messages
-G_BOT_IS_MOVING: bool = False
-G_BOT_IS_TURNING: bool = False
-G_BOT_TURN_DIRECTION: str = str()
-G_BOT_IS_STUNNED: bool = False
-G_WEAPON_CAN_SHOOT: bool = True
+# Fight
+G_BORDER_DETECTED = False
+G_TARGET_BOT_QUEUE = SimpleQueue()
+G_TARGET_DESTRUCTIBLES_QUEUE = SimpleQueue()
+G_TURN_DIRECTION = 'right'
 
-# Will be used to store all the objects to shoot at
-G_BOT_TARGETS_QUEUE: SimpleQueue = SimpleQueue()
+# Multithreading
+# - Thread events
+G_SCANNER_EVENT = Event()
+G_EVENT_EVENT = Event()
 
 
-def check_for_existing_bot_id() -> str:
+def stop():
     """
-    If a bot was previously registered, we read the bot_id.
+    Closing messages reading threads.
     """
-    if G_BOT_ID_TMP_FILE.exists():
-        return G_BOT_ID_TMP_FILE.read_text()
-    else:
-        return ""
+    global G_SCANNER_EVENT
+    global G_EVENT_EVENT
+
+    G_SCANNER_EVENT.set()
+    G_EVENT_EVENT.set()
 
 
-def thread_read_scanner_queue(e: Event, bot_ai: BotAi):
+def thread_read_scanner_messages(e: Event, _bot: Bot):
     """
-    Thread continuously reading messages from the bot scanner queue.
+    Thread continuously reading messages from the broker's scanner queue.
     """
+    global G_BORDER_DETECTED
+
+    _border_distance = 2.0
+    _bot_distance = 9.0
+    _destructible_distance = 5.0
+
     while not e.is_set():
-        scanner_message = bot_ai.read_scanner()
-        logging.debug(f"[SCANNER] {scanner_message}")
-        handle_scanner_message(scanner_message)
+        if G_GAME_IS_STARTED:
+            detected_objects_message = _bot.read_scanner()
+            if 'timestamp' in detected_objects_message:
+                logging.info(f"[SCANNER] Message received in {timedelta(seconds=time() - detected_objects_message['timestamp'])}")
+            
+            detected_objects = list(DetectedObject.get(detected_objects_message))
 
-
-def thread_read_game_queue(e: Event, bot_ai: BotAi):
-    """
-    Thread continuously reading messages from the game queue.
-    """
-    while not e.is_set():
-        game_message = bot_ai.read_game_message()
-        logging.debug(f"[GAME] {game_message}")
-        handle_game_message(game_message)
-
-
-def handle_scanner_message(message: dict):
-    """
-    Handle a new scanner message.
-    """
-    try:
-        if message['msg_type'] == "object_detection":
-            # Browsing detected objects
-            for detected_object in message['data']:
-                is_valid_target = False
-                target = None
-                match detected_object['object_type']:
-                    # We want to shoot at trees and bots
-                    case "tree":
-                        is_valid_target = True
-                        target = detected_object
-                    case "bot":
-                        is_valid_target = True
-                        target = detected_object
-                    # We cannot walk on water
-                    case "tile":
-                        if detected_object["name"].lower() == "water":
-                            logging.debug("WATER WATER WATER!!!")
-                    case _:
-                        pass
-
-                if is_valid_target:
-                    target_angle = (target['from'] + target['to']) / 2
-                    logging.info(f"[SCANNER] {target['name']} detected at a distance of "
-                                 f"{target['distance']} ({target_angle}°)")
-                    G_BOT_TARGETS_QUEUE.put(target_angle)
-        else:
-            logging.error(f"Unknown scanner message: {message}")
-    except:
-        logging.error(f"Bad scanner message format: {message}")
-
-
-def handle_game_message(message: dict):
-    """
-    Handle a new game message.
-    """
-    try:
-        match message['msg_type']:
-            case "health_status":
-                global G_BOT_HEALTH
-                # Bot health update
-                G_BOT_HEALTH = message['data']['value']
-                show_bot_stats()
-            case "game_status":
-                global G_GAME_IS_STARTED
-                # Game is running or stopped
-                G_GAME_IS_STARTED = message['data']
-            case "stunning_status":
-                global G_BOT_IS_STUNNED
-                # Bot is stunned or not
-                G_BOT_IS_STUNNED = message['data']['value']
-            case "moving_status":
-                global G_BOT_IS_MOVING
-                # Bot is moving or not
-                G_BOT_IS_MOVING = message['data']['value']
-            case "turning_status":
-                global G_BOT_IS_TURNING
-                global G_BOT_TURN_DIRECTION
-                if message['data']['value'] == 'stop':
-                    # Bot has been stopped
-                    G_BOT_IS_TURNING = False
+            if len(detected_objects):
+                detected_borders = [
+                    x for x in detected_objects
+                    if x.name.lower() in ['desintegrator', 'water', 'rock', 'tree', 'bot'] and x.distance <= _border_distance
+                ]
+                if len(detected_borders):
+                    G_BORDER_DETECTED = True
                 else:
-                    # Turn direction
-                    G_BOT_IS_TURNING = True
-                    G_BOT_TURN_DIRECTION = message['data']['value']
-            case "weapon_can_shoot":
-                global G_WEAPON_CAN_SHOOT
-                G_WEAPON_CAN_SHOOT = message['data']['value']
-            case _:
-                logging.error(f"Unknown game message: {message}")
-    except:
-        logging.error(f"Bad game message format: {message}")
+                    G_BORDER_DETECTED = False
+
+                detected_bots = [
+                    x for x in detected_objects
+                    if x.object_type.lower() == 'bot' and x.distance <= _bot_distance
+                ]
+                for detected_bot in detected_bots:
+                    G_TARGET_BOT_QUEUE.put(detected_bot)
+
+                detected_destructibles = [
+                    x for x in detected_objects
+                    if x.object_type.lower() not in ['bot', 'tile', 'rock'] and x.distance <= _destructible_distance
+                ]
+                for detected_destructible in detected_destructibles:
+                    G_TARGET_DESTRUCTIBLES_QUEUE.put(detected_destructible)
 
 
-def get_opposite_direction(direction: str) -> str:
-    if direction.lower() == 'left':
-        return 'right'
-    elif direction.lower() == 'right':
-        return 'left'
-    else:
-        return 'stop'
+def thread_read_event_messages(e: Event, _bot: Bot):
+    """
+    Thread continuously reading messages from the broker's event queue.
+    """
+    global G_GAME_IS_STARTED
 
-
-def show_bot_stats():
-    logging.info(f"Health: {G_BOT_HEALTH}")
+    while not e.is_set():
+        event_message = _bot.read_game_message()
+        if 'timestamp' in event_message:
+            logging.info(f"[EVENT] Message received in {timedelta(seconds=time() - event_message['timestamp'])}")
+        
+        event = Events.Event.get(event_message)
+        if event:
+            if isinstance(event, GameStatusMessage):
+                G_GAME_IS_STARTED = event.is_started
+            else:
+                _bot.update(event)
 
 
 if __name__ == "__main__":
     # Logging
-    logging.basicConfig(level=logging.DEBUG, datefmt='%d/%m/%Y %I:%M:%S',
+    logging.basicConfig(level=logging.INFO, datefmt='%d/%m/%Y %I:%M:%S',
                         format='[%(levelname)s] %(asctime)s - %(message)s')
 
     # Creating a new Bot
-    with BotAi(G_BOT_CONFIG['bot_name'], G_BOT_CONFIG['team_id']) as bot:
-        def stop():
-            # Closing messages reading threads
-            scanner_message_thread_event.set()
-            game_message_thread_event.set()
+    bot = Bot(G_BOT_CONFIG['bot_name'], G_BOT_CONFIG['team_id'])
 
-            # Removing temp file
-            G_BOT_ID_TMP_FILE.unlink(missing_ok=True)
+    # Bot scanner messages handler process
+    Thread(target=thread_read_scanner_messages, args=(G_SCANNER_EVENT, bot)).start()
 
-        # Bot enrollment
-        try:
-            # If we crashed after enrolling the bot, we re-use the same bot_id if it was stored
-            bot_id = bot.enroll(check_for_existing_bot_id())
-        except BotAi.RestException as ex:
-            # If the bot id is invalid
-            if ex.name == 'BOT_DOES_NOT_EXISTS':
-                # Bot id was invalid, deleting tmp file
-                G_BOT_ID_TMP_FILE.unlink(missing_ok=True)
-                # Enrolling as new bot
-                bot_id = bot.enroll()
-            else:
-                logging.exception(str(ex))
-                sys.exit()
+    # Game messages handler process
+    Thread(target=thread_read_event_messages, args=(G_EVENT_EVENT, bot)).start()
 
-        # Writing new bot id to tmp file
-        G_BOT_ID_TMP_FILE.write_text(bot_id)
+    # Waiting for the game to start
+    while not G_GAME_IS_STARTED:
+        sleep(0.1)
 
-        # Bot scanner messages handler thread
-        scanner_message_thread_event = Event()
-        Thread(target=thread_read_scanner_queue, args=(scanner_message_thread_event, bot)).start()
+    # Game is started
+    logging.info(bot.get_stats())
 
-        # Game messages handler thread
-        game_message_thread_event = Event()
-        Thread(target=thread_read_game_queue, args=(game_message_thread_event, bot)).start()
+    try:
 
-        # Randomize directions and durations
-        rand_gen = random.Random()
+        # Big AI time
+        while bot.health > 0 and G_GAME_IS_STARTED:
+            try:
+                # Stop moving if close to border
+                if G_BORDER_DETECTED:
+                    bot.stop()
+                else:
+                    bot.move()
 
-        # Waiting for the game to start
-        while not G_GAME_IS_STARTED:
-            sleep(0.1)
+                # Shooting
+                if bot.weapon.can_shoot:
+                    if not G_TARGET_BOT_QUEUE.empty():
+                        bot.stop()
+                        bot.turn('stop')
+                        while not G_TARGET_BOT_QUEUE.empty():
+                            try:
+                                target = G_TARGET_BOT_QUEUE.get(block=False)
+                                bot.shoot((target.angle_to + target.angle_from) / 2)
+                                if abs(target.angle_from) > abs(target.angle_to):
+                                    G_TURN_DIRECTION = 'left'
+                                else:
+                                    G_TURN_DIRECTION = 'right'
+                            except Empty:
+                                pass
+                    elif not G_TARGET_DESTRUCTIBLES_QUEUE.empty():
+                        bot.stop()
+                        bot.turn('stop')
+                        while not G_TARGET_DESTRUCTIBLES_QUEUE.empty():
+                            try:
+                                target = G_TARGET_DESTRUCTIBLES_QUEUE.get(block=False)
+                                bot.shoot((target.angle_to + target.angle_from) / 2)
+                            except Empty:
+                                pass
+                    else:
+                        bot.turn(G_TURN_DIRECTION)
 
-        # Game is started
-        show_bot_stats()
+            except BotAi.RestException as ex:
+                pass
 
-        try:
-            # Big AI time
+            sleep(1 / 1000)
 
-            last_turn_ts = datetime.now()
-            while G_BOT_HEALTH > 0 and G_GAME_IS_STARTED:
-                try:
-                    if not G_BOT_TARGETS_QUEUE.empty():
-                        bot.shoot(G_BOT_TARGETS_QUEUE.get(block=False))
+        # Game has stopped or the bot is dead
+        if bot.health <= 0:
+            logging.info("Bot is dead")
 
-                    if not G_BOT_IS_MOVING:
-                        bot.move(True)
+        elif not G_GAME_IS_STARTED:
+            logging.info("Game has been stopped")
+        stop()
 
-                    if not G_BOT_IS_TURNING:
-                        bot.turn(rand_gen.choice(['left', 'right']))
-                    elif G_BOT_IS_TURNING and datetime.now() - last_turn_ts > timedelta(seconds=5):
-                        bot.turn(rand_gen.choice(['left', 'right']))
-                        last_turn_ts = datetime.now()
-
-                except BotAi.RestException as ex:
-                    pass
-
-            # Game has stopped or the bot is dead
-            if G_BOT_HEALTH <= 0:
-                logging.info("Bot is dead")
-
-            elif not G_GAME_IS_STARTED:
-                logging.info("Game has been stopped")
-            stop()
-
-        except KeyboardInterrupt:
-            logging.info("Bot has been aborted")
-            stop()
+    except KeyboardInterrupt:
+        logging.info("Bot has been aborted")
+        stop()
