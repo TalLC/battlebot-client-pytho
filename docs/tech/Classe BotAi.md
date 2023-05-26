@@ -1,6 +1,4 @@
 <link rel="stylesheet" type="text/css" href="../style/style.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-theme.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-code.css">
 
 <!-- Side navigation -->
 <div class="sidebar">
@@ -20,6 +18,7 @@
 # BotAi
 
 - [BotAi](#botai)
+  - [Prérequis](#prérequis)
   - [Propriétés de la classe](#propriétés-de-la-classe)
   - [Méthodes de la classe](#méthodes-de-la-classe)
   - [Exceptions](#exceptions)
@@ -27,6 +26,7 @@
 
 
 La classe `BotAi` fournit une interface haut niveau pour interagir avec le serveur de combat de bots. Il permet à un client de s'inscrire avec un bot, de lire les messages entrants du serveur et de réaliser des actions telles que se déplacer, tourner et tirer.
+
 
 ## Propriétés de la classe
 
@@ -179,6 +179,8 @@ La classe `BotAi` fournit une interface haut niveau pour interagir avec le serve
 
 
 ## Exemple d'utilisation
+
+Exemple d'IA minimum. Un exemple plus complet permettant de lancer jusqu'à 6 robots basés sur le même code d'IA est disponible dans le dossier `example`.
 
 ```python
 import logging
@@ -336,6 +338,7 @@ if __name__ == "__main__":
 
             # While the bot is alive and the game is running
             while G_BOT_HEALTH > 0 and G_GAME_IS_STARTED:
+                pass
                 # ############################################################
                 #
                 # AI logic goes here. Example:

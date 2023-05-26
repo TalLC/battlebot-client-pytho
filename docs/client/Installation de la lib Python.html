@@ -366,8 +366,6 @@ code {
     });
   </script>
 <link rel="stylesheet" type="text/css" href="../style/style.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-theme.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-code.css">
 <!-- Side navigation -->
 <div class="sidebar">
   <center><img src="../img/Python-logo-notext.svg"></center>
@@ -383,7 +381,8 @@ code {
 <h1 id="installation-de-la-lib-python">Installation de la lib Python</h1>
 <p>Vous devez avoir obtenu le fichier <code>battlebotslib.zip</code> au préalable. Ce fichier contient la bibliothèque Python à installer via PIP dans votre projet d'IA.</p>
 <h2 id="installation">Installation</h2>
-<p>Il est recommandé de vous créer un environnement virtuel au sein de votre projet et de l'activer avant d'installer la bibliothèque et ses dépendances.</p>
+<h3 id="environnement-virtuel">Environnement virtuel</h3>
+<p>Il est recommandé de vous créer un environnement virtuel au sein de votre projet d'IA et de l'activer avant d'installer la bibliothèque et ses dépendances.</p>
 <p>Pour créer un environnement virtuel Python :</p>
 <ul>
 <li><code>python -m venv venv</code></li>
@@ -395,17 +394,47 @@ code {
 <li><code>venv\Scripts\activate.bat</code></li>
 </ul>
 </li>
-<li>Unix :
+<li>Linux :
 <ul>
-<li><code>source venv/Scripts/activate</code></li>
+<li><code>source venv/bin/activate</code></li>
 </ul>
 </li>
 </ul>
 <p>Installer la lib :</p>
 <ul>
-<li><code>pip install dist\battlebotslib-0.4.0-py3-none-any.whl</code></li>
+<li><code>pip install dist\battlebotslib-0.5.2-py3-none-any.whl</code></li>
 </ul>
-<p>Après l'installation, vous êtes prêt à utiliser la bibliothèque.</p>
+<h3 id="configuration-de-la-lib">Configuration de la lib</h3>
+<p>Pour que la lib fonctionne, il faut créer 3 fichiers de configuration qui vont donner les informations de connexions aux différents services.</p>
+<p>Ils sont à créer dans votre projet d'IA Python, dans un sous-dossier <code>conf</code>.</p>
+<p>Voici les fichiers avec les informations pour vous connecter à votre serveur local :</p>
+<p><strong>conf/rest.json</strong></p>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"host"</span>: <span class="hljs-string">"localhost"</span>,
+  <span class="hljs-attr">"port"</span>: <span class="hljs-number">8000</span>,
+  <span class="hljs-attr">"protocol"</span>: <span class="hljs-string">"http"</span>
+}
+</div></code></pre>
+<p><strong>conf/mqtt.json</strong></p>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"destination_root"</span>: <span class="hljs-string">"BATTLEBOT/BOT/"</span>,
+  <span class="hljs-attr">"username"</span>: <span class="hljs-string">"user"</span>,
+  <span class="hljs-attr">"password"</span>: <span class="hljs-string">"password"</span>,
+  <span class="hljs-attr">"host"</span>: <span class="hljs-string">"localhost"</span>,
+  <span class="hljs-attr">"port"</span>: <span class="hljs-number">1883</span>,
+  <span class="hljs-attr">"connect_timeout"</span>: <span class="hljs-number">5</span>
+}
+</div></code></pre>
+<p><strong>conf/stomp.json</strong></p>
+<pre class="hljs"><code><div>{
+  <span class="hljs-attr">"destination_root"</span>: <span class="hljs-string">"BATTLEBOT.BOT."</span>,
+  <span class="hljs-attr">"username"</span>: <span class="hljs-string">"user"</span>,
+  <span class="hljs-attr">"password"</span>: <span class="hljs-string">"password"</span>,
+  <span class="hljs-attr">"host"</span>: <span class="hljs-string">"localhost"</span>,
+  <span class="hljs-attr">"port"</span>: <span class="hljs-number">61613</span>
+}
+</div></code></pre>
+<p>Vous êtes prêt à utiliser la bibliothèque.</p>
 <p>La classe principale permettant d'interagir avec votre IA est <code>battlebotslib.BotAi</code>.</p>
 <hr>
 <p><a href="#top">⬆️ Retour</a> - <em>Installation de la lib Python</em></p>

@@ -1,6 +1,4 @@
 <link rel="stylesheet" type="text/css" href="../style/style.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-theme.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-code.css">
 
 <!-- Side navigation -->
 <div class="sidebar">
@@ -24,7 +22,9 @@ Vous devez avoir obtenu le fichier `battlebotslib.zip` au préalable. Ce fichier
 
 ## Installation
 
-Il est recommandé de vous créer un environnement virtuel au sein de votre projet et de l'activer avant d'installer la bibliothèque et ses dépendances.
+### Environnement virtuel
+
+Il est recommandé de vous créer un environnement virtuel au sein de votre projet d'IA et de l'activer avant d'installer la bibliothèque et ses dépendances.
 
 Pour créer un environnement virtuel Python :
 - `python -m venv venv`
@@ -32,14 +32,55 @@ Pour créer un environnement virtuel Python :
 Activer l'environnement virtuel :
 - Windows :
   - `venv\Scripts\activate.bat`
-- Unix :
-  - `source venv/Scripts/activate`
+- Linux :
+  - `source venv/bin/activate`
 
 Installer la lib :
-- `pip install dist\battlebotslib-0.4.0-py3-none-any.whl`
+- `pip install dist\battlebotslib-0.5.2-py3-none-any.whl`
 
 
-Après l'installation, vous êtes prêt à utiliser la bibliothèque.
+### Configuration de la lib
+
+Pour que la lib fonctionne, il faut créer 3 fichiers de configuration qui vont donner les informations de connexions aux différents services.
+
+Ils sont à créer dans votre projet d'IA Python, dans un sous-dossier `conf`.
+
+Voici les fichiers avec les informations pour vous connecter à votre serveur local :
+
+**conf/rest.json**
+```json
+{
+  "host": "localhost",
+  "port": 8000,
+  "protocol": "http"
+}
+```
+
+**conf/mqtt.json**
+```json
+{
+  "destination_root": "BATTLEBOT/BOT/",
+  "username": "user",
+  "password": "password",
+  "host": "localhost",
+  "port": 1883,
+  "connect_timeout": 5
+}
+```
+
+**conf/stomp.json**
+```json
+{
+  "destination_root": "BATTLEBOT.BOT.",
+  "username": "user",
+  "password": "password",
+  "host": "localhost",
+  "port": 61613
+}
+```
+
+
+Vous êtes prêt à utiliser la bibliothèque.
 
 La classe principale permettant d'interagir avec votre IA est `battlebotslib.BotAi`.
 

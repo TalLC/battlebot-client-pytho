@@ -366,8 +366,6 @@ code {
     });
   </script>
 <link rel="stylesheet" type="text/css" href="../style/style.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-theme.css">
-<link rel="stylesheet" type="text/css" href="../style/dark-code.css">
 <!-- Side navigation -->
 <div class="sidebar">
   <center><img src="../img/Python-logo-notext.svg"></center>
@@ -384,6 +382,7 @@ code {
 <ul>
 <li><a href="#botai">BotAi</a>
 <ul>
+<li><a href="#pr%C3%A9requis">Prérequis</a></li>
 <li><a href="#propri%C3%A9t%C3%A9s-de-la-classe">Propriétés de la classe</a></li>
 <li><a href="#m%C3%A9thodes-de-la-classe">Méthodes de la classe</a></li>
 <li><a href="#exceptions">Exceptions</a></li>
@@ -561,6 +560,7 @@ code {
 <li><code>RestException</code> : Levée en cas d'erreur lors d'un appel d'API REST.</li>
 </ul>
 <h2 id="exemple-dutilisation">Exemple d'utilisation</h2>
+<p>Exemple d'IA minimum. Un exemple plus complet permettant de lancer jusqu'à 6 robots basés sur le même code d'IA est disponible dans le dossier <code>example</code>.</p>
 <pre class="hljs"><code><div><span class="hljs-keyword">import</span> logging
 <span class="hljs-keyword">from</span> time <span class="hljs-keyword">import</span> sleep
 <span class="hljs-keyword">from</span> threading <span class="hljs-keyword">import</span> Event, Thread
@@ -716,6 +716,7 @@ G_BOT_TARGETS_QUEUE: SimpleQueue = SimpleQueue()
 
             <span class="hljs-comment"># While the bot is alive and the game is running</span>
             <span class="hljs-keyword">while</span> G_BOT_HEALTH &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">and</span> G_GAME_IS_STARTED:
+                <span class="hljs-keyword">pass</span>
                 <span class="hljs-comment"># ############################################################</span>
                 <span class="hljs-comment">#</span>
                 <span class="hljs-comment"># AI logic goes here. Example:</span>

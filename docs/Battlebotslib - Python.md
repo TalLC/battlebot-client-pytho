@@ -1,6 +1,4 @@
 <link rel="stylesheet" type="text/css" href="style/style.css">
-<link rel="stylesheet" type="text/css" href="style/dark-theme.css">
-<link rel="stylesheet" type="text/css" href="style/dark-code.css">
 
 <!-- Side navigation -->
 <div class="sidebar">
@@ -23,7 +21,6 @@
 Vous trouverez ici la documentation d'installation de la lib client Battlebots qui permet d'interagir avec le serveur.
 
 La classe BotAi est celle qui permet de connecter un bot et d'interagir avec, son utilisation ainsi qu'un exemple basique sont détaillés dans sa section.
-
 
 ---
 
