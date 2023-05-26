@@ -47,6 +47,7 @@ mkdir %tmp_doc%
 rem Recopie de la doc
 echo - Recopie de la documentation
 robocopy /E docs %tmp_doc% > nul
+robocopy /E example %tmp_doc%\example > nul
 
 rem Suppression des fichiers inutiles
 echo - Suppression des fichiers inutiles
@@ -57,6 +58,9 @@ del /Q %tmp_doc%\client\*.bak 2> nul
 del /Q %tmp_doc%\tech\*.md 2> nul
 del /Q %tmp_doc%\tech\*.bak 2> nul
 del /Q %tmp_doc%\style\*.bak 2> nul
+rmdir /S /Q %tmp_doc%\example\.idea 2> nul
+rmdir /S /Q %tmp_doc%\example\venv 2> nul
+rmdir /S /Q %tmp_doc%\example\__pycache__ 2> nul
 
 rem Zip du package documentation
 echo - Zip du package documentation
