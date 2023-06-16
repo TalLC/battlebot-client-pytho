@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any, Generator
 from BrokerMessage import BrokerMessage
 
 
@@ -34,7 +35,7 @@ class DetectedObject(BrokerMessage):
         self._distance = message_data['distance']
 
     @staticmethod
-    def get(message: dict) -> list[DetectedObject]:
+    def get(message: dict) -> Generator[DetectedObject, Any, Any]:
         if len(message.keys()) > 0:
             if DetectedObject.is_valid_message(message):
                 for detected_object in message['data']:
@@ -45,7 +46,7 @@ class DetectedObject(BrokerMessage):
         return list()
 
     @staticmethod
-    def get_mandatory_fields() -> [str]:
+    def get_mandatory_fields() -> list[str]:
         return ['msg_type', 'source', 'data']
 
     @staticmethod

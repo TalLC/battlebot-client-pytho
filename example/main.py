@@ -1,8 +1,7 @@
 import sys
 import json
 import logging
-import random
-from datetime import datetime, timedelta
+from datetime import timedelta
 from time import time, sleep
 from pathlib import Path
 from threading import Thread, Event
@@ -14,7 +13,14 @@ from DetectedObject import DetectedObject
 from Bot import Bot
 
 
+#
+# Appel du script
+# python main.py [botx.json]
+#
+
+
 # Bot config
+# Si un fichier de config est fourni en entrée, on l'utilise, sinon on prend 'bot1.json'
 if len(sys.argv) > 1:
     conf_file = sys.argv[1]
 else:
@@ -80,14 +86,14 @@ def thread_read_scanner_messages(e: Event, _bot: Bot):
                     if x.object_type.lower() == 'bot' and x.distance <= _bot_distance
                 ]
                 for detected_bot in detected_bots:
-                    G_TARGET_BOT_QUEUE.put(detected_bot)
+                    G_TARGET_BOT_QUEUE.put_nowait(detected_bot)
 
                 detected_destructibles = [
                     x for x in detected_objects
                     if x.object_type.lower() not in ['bot', 'tile', 'rock'] and x.distance <= _destructible_distance
                 ]
                 for detected_destructible in detected_destructibles:
-                    G_TARGET_DESTRUCTIBLES_QUEUE.put(detected_destructible)
+                    G_TARGET_DESTRUCTIBLES_QUEUE.put_nowait(detected_destructible)
 
 
 def thread_read_event_messages(e: Event, _bot: Bot):

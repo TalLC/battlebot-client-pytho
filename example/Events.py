@@ -46,7 +46,7 @@ class Event(BrokerMessage):
         return None
 
     @staticmethod
-    def get_mandatory_fields() -> [str]:
+    def get_mandatory_fields() -> list[str]:
         return ['msg_type', 'source', 'data']
 
     @staticmethod

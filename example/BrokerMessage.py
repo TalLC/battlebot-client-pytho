@@ -9,7 +9,7 @@ class BrokerMessage(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def get_mandatory_fields() -> [str]:
+    def get_mandatory_fields() -> list[str]:
         raise NotImplementedError
 
     @staticmethod
